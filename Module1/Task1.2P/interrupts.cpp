@@ -17,10 +17,11 @@ void setup()
 void loop()
 {
   	Serial.println("Temperature is:" + String(analogRead(TMP)));
-	delay(5000); 
+	delay(5000);
 }
 
 
 void ISR_action(){
   analogRead(TMP)>200 ? digitalWrite(LED, HIGH) : digitalWrite(LED, LOW);
+  analogRead(TMP)>200 ? Serial.println("LED ON!") : Serial.println("LED OFF!");
 }
