@@ -1,51 +1,46 @@
 // C++ code
-//
-int temp = 0;
-int buttonState = 0;
-int pirState = 0;
+const int LED = 13;
+const int LED_G = 12;
+const int TMP = A1;
+const int BUTTON = 3;
+const int PIR = 2;
+volatile bool pirState = 0;
 
-
-const int LED = A0;
-const int sensor = A1;
-const int buttonPin = 2;
-const int pirSensor = 4;
 
 void setup()
 {
-  pinMode(LED, OUTPUT);
-  pinMode(sensor, INPUT);
-  pinMode(buttonPin, INPUT);  
-  pinMode(pirSensor, INPUT);
-  attachInterrupt(digitalPinToInterrupt(2), ISR_action, CHANGE);
+  	pinMode(LED, OUTPUT);
+ 	pinMode(LED_G, OUTPUT);
+  	pinMode(TMP, INPUT);
+ 	pinMode(BUTTON, INPUT);
+  	pinMode(PIR, INPUT);
+	Serial.begin(9600);
+  	attachInterrupt(digitalPinToInterrupt(BUTTON), ISR_action, RISING  );
+	attachInterrupt(digitalPinToInterrupt(PIR), ISR_action2, RISING);
+
+  //Info from Arduino official docs
+  //Typically global variables are used to pass data between
+  //an ISR and the main program. To make sure variables shared
+  //between an ISR and the main program are updated correctly,
+  //declare them as volatile.
   
-    Serial.begin(9600);
+  //RISING to trigger when the pin goes from low to high,
 }
 
 void loop()
 {
-  temp = analogRead(A1);
-  pirState = digitalRead(pirSensor);
-
-  if (temp > 200 || pirState == 1){
-   		digitalWrite(LED, HIGH);
-        Serial.print("PIR: ");
-        Serial.print(String(pirState));
-        Serial.print(" Temp: ");
-        Serial.print(String(temp)); 
-        Serial.println(" LED ON! ");
-  } else { 
-    	digitalWrite(LED, LOW);
-        Serial.print("PIR: ");
-        Serial.print(String(pirState));
-        Serial.print(" Temp: ");
-        Serial.print(String(temp));  
-        Serial.println(". LED OFF!");
-  }
-  
-  delay(200);
+  	Serial.println("Temperature is:" + String(analogRead(TMP)) + "\n");
+	delay(5000);
 }
 
+
 void ISR_action(){
-  Serial.println("Interrupt!! Delay wont work inside an interrupt!");
-  delay(50000);
+  	analogRead(TMP)>200 ? digitalWrite(LED, HIGH) : digitalWrite(LED, LOW);
+  	analogRead(TMP)>200 ? Serial.println("BLUE LED ON!") : Serial.println("BLUE LED OFF!");
+}
+
+void ISR_action2(){
+  	pirState = !pirState;
+  	pirState ? Serial.println("GREEN LED ON") : Serial.println("GREEN LED OFF");
+	digitalWrite(LED_G, pirState);
 }
